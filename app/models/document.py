@@ -9,7 +9,7 @@ Base = declarative_base()
 class Document(Base):
     __tablename__ = "documents"
 
-    id = Column('document_id', Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
     name = Column(String(50))
     owner = Column(Integer, schema.ForeignKey('users.user_id'))
     template = Column(Integer, schema.ForeignKey('templates.template_id'))

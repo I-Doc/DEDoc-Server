@@ -9,6 +9,6 @@ Base = declarative_base()
 class DocumentState(Base):
     __tablename__ = 'document_state'
 
-    id = Column('state_id', Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
     name = Column(String(15))
     description = Column(String(255))

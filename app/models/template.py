@@ -9,7 +9,7 @@ Base = declarative_base()
 class Template(Base):
     __tablename__ = "templates"
 
-    id = Column('template_id', Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
     name = Column(String(50))
     data = Column(LargeBinary, nullable=False)
     is_active = Column(Boolean, default=True)

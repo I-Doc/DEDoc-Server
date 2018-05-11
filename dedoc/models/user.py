@@ -1,14 +1,14 @@
 from sqlalchemy import Column, schema
 from sqlalchemy.types import Boolean, Date, Integer, String
 
-from app.app import db
+from dedoc.app import db
 
 
 class User(db.Model):
     __tablename__ = 'users'
 
     id = Column(db.Integer, primary_key=True)
-    username = Column(db.String(50), nullable=False)
+    username = Column(db.String(50), nullable=False, unique=True)
     password = Column(db.String(60), nullable=False)
     is_admin = Column(db.Boolean, default=False)
     is_active = Column(db.Boolean, default=True)

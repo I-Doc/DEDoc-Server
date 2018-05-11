@@ -9,16 +9,32 @@ from dedoc.models.session import Session
 from dedoc.models.user import User
 
 
+SQL_DUPLICATE_ERROR = '1062'
+
+
 @auth.verify_token
 def verify_token(token):
-    print("verifying token")
+    """Check if token belong to any session, and return owner of session.
+
+    Don't use this function directly!
+
+    :params:
+        - `token`: str token parsed by flask_httpauth.
+
+    :return:
+        True, if token is valid, otherwise False and set g.auth_error
+         with error message.
+    """
     session = Session.query.filter(Session.token == token).first()
     if session:
         user = User.query.filter(User.id == Session.user).first()
         if user:
+            if not user.is_active:
+                g.auth_error = 'User is not active. Contact administrator.'
+                return False
             g.current_user = user
         else:
-            g.auth_error = 'User not found'
+            g.auth_error = 'User not found.'
             return False
     else:
         g.auth_error = 'Wrong token.'
@@ -29,6 +45,7 @@ def verify_token(token):
 
 @auth.error_handler
 def auth_error():
+    """Auth error handler."""
     return jsonify({'error': g.auth_error or 'access denied'})
 
 
@@ -77,8 +94,7 @@ def check_password(username, password):
     user = User.query.filter(User.username == username).first()
     if user and check_password_hash(user.password, password):
         return user
-    else:
-        return None
+    return None
 
 
 def register_new_user(user_data):
@@ -92,12 +108,15 @@ def register_new_user(user_data):
         new_user = User(
             username=user_data['username'],
             password=_get_password_hash(user_data['password']),
-            name=user_data['name'])
+            name=user_data['name'],
+            surname=user_data['surname'],
+            fathername=user_data['fathername'],
+            birthdate=user_data['birthdate'])
         db.session.add(new_user)
         db.session.commit()
         return new_user, None
     except IntegrityError as error:
         str_error = str(error)
-        if '1062' in str_error:
+        if SQL_DUPLICATE_ERROR in str_error:
             return None, 'User already exists!'
         return None, str(error)

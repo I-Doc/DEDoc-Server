@@ -1,3 +1,4 @@
+"""This module initialize application."""
 import configparser
 import sys
 
@@ -14,7 +15,9 @@ db_data = {key: conf_parser.get('database', key) for key in db_keys}
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = '%(db_type)s://%(username)s:%(password)s@%(host)s/%(db_name)s?charset=utf8' % db_data
+app.config['SQLALCHEMY_DATABASE_URI'] = ('%(db_type)s://'
+                                         '%(username)s:%(password)s@'
+                                         '%(host)s/%(db_name)s?charset=utf8') % db_data
 db = SQLAlchemy(app)
 auth = HTTPTokenAuth(scheme='Token')
 

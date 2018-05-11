@@ -1,4 +1,5 @@
 import json
+import datetime
 from ipaddress import IPv4Address
 
 from flask import request, jsonify, g
@@ -6,6 +7,7 @@ from flask import request, jsonify, g
 from dedoc.app import app, auth
 from dedoc.controller import login as login_controller
 from dedoc.controller import validators
+from dedoc.utils import date_to_str, str_to_date, parse_error
 
 
 REGISTRATION_REQUIRED_FIELDS = ()
@@ -19,14 +21,25 @@ def login():
         - `username`: str
         - `password`: str
     """
-    data = request.get_json(force=True)
-    try:
-        username = data['username']
-        password = data['password']
-        print('username: %s password: %s' % (username, password, ))
-    except KeyError as error:
-        print(error)
-        return jsonify({'error': 'No username or password.'})
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return parse_error()
+
+    username = data.get('username')
+    password = data.get('password')
+
+    error = None
+
+    if not username:
+        error = 'No `username` field.'
+
+    if not password:
+        error = 'No `password` field.'
+
+    print('username: %s password: %s' % (username, password, ))
+
+    if error:
+        return jsonify({'error': error})
 
     login_user = login_controller.check_password(username, password)
     if login_user:
@@ -40,27 +53,29 @@ def login():
 @app.route('/register', methods=['POST'])
 def register():
     """Register new user with given data."""
-    data = request.get_json(force=True)
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return parse_error()
 
     errors = []
 
     username = data.get('username')
     password = data.get('password')
 
-    name = date.get('name')
-    surname = date.get('surname')
-    fathername = date.get('fathername')
+    name = data.get('name')
+    surname = data.get('surname')
+    fathername = data.get('fathername')
 
-    birthdate = date.get('birthdate')
+    birthdate = data.get('birthdate')
     if not birthdate:
         errors.append('No `birthdate` field.')
     else:
         try:
-            birthdate = datetime.strptime(birthdate, '%d:%m:%Y').date()
+            birthdate = str_to_date(birthdate)
             if not validators.validate_birthdate(birthdate):
                 errors.append('Wrong `birthdate`.')
         except ValueError:
-            errors.append('Wrong date format. Need dd:mm:YYYY.')
+            errors.append('Wrong date format. Need dd/mm/YYYY.')
 
     if not username:
         errors.append('No `username` field.')
@@ -95,11 +110,20 @@ def register():
 
     if errors:
         return jsonify({'errors': errors, 'success': False})
+    else:
+        registration_data = {
+            'username': username,
+            'password': password,
+            'name': name,
+            'surname': surname,
+            'fathername': fathername,
+            'birthdate': birthdate,
+        }
 
-    new_user, error = login_controller.register_new_user(data)
+    new_user, error = login_controller.register_new_user(registration_data)
     if new_user:
         ip = int(IPv4Address(request.remote_addr))
-        new_user_session = login_controller.get_session(new_user, ip)
+        new_user_session, _ = login_controller.get_session(new_user, ip)
         print("new user session: %s" % (new_user_session, ))
         return jsonify({'token': new_user_session.token})
     else:
@@ -109,4 +133,10 @@ def register():
 @app.route('/check', methods=['GET'])
 @auth.login_required
 def check():
-    return jsonify({'you are': g.current_user.username})
+    return jsonify({
+        'username': g.current_user.username,
+        'name': g.current_user.name,
+        'surname': g.current_user.surname,
+        'fathername': g.current_user.fathername,
+        'birthdate': date_to_str(g.current_user.birthdate),
+        })

@@ -17,7 +17,7 @@ if conf_parser.has_section('database'):
                     '%(username)s:%(password)s@'
                     '%(host)s/%(db_name)s?charset=utf8') % db_data
 else:
-    database_uri = os.environ['DATABASE_URI']
+    database_uri = os.environ['DATABASE_URL']
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

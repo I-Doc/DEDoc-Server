@@ -18,3 +18,8 @@ def str_to_date(string):
 
 def parse_error():
     return jsonify({'error': 'Cannot parse JSON.'})
+
+
+def serialize(obj):
+    """Transforms object to dict"""
+    return {c.name: str(getattr(obj, c.name)) for c in obj.__table__.columns}

@@ -1,5 +1,3 @@
-import json
-import datetime
 from ipaddress import IPv4Address
 
 from flask import request, jsonify, g
@@ -7,8 +5,8 @@ from flask import request, jsonify, g
 from dedoc.app import app, auth
 from dedoc.controller import login as login_controller
 from dedoc.controller import validators
-from dedoc.utils import date_to_str, str_to_date, parse_error
-
+from dedoc.models.document import Document
+from dedoc.utils import date_to_str, str_to_date, parse_error, serialize
 
 REGISTRATION_REQUIRED_FIELDS = ()
 
@@ -130,9 +128,9 @@ def register():
         return jsonify({'error': error})
 
 
-@app.route('/check', methods=['GET'])
+@app.route('/profile', methods=['GET'])
 @auth.login_required
-def check():
+def profile():
     return jsonify({
         'username': g.current_user.username,
         'name': g.current_user.name,
@@ -140,3 +138,12 @@ def check():
         'fathername': g.current_user.fathername,
         'birthdate': date_to_str(g.current_user.birthdate),
         })
+
+
+@app.route('/documents', methods=['GET'])
+@auth.login_required
+def documents():
+    documents = Document.query.filter_by(owner=g.current_user.id)
+    documents = [serialize(document) for document in documents]
+
+    return jsonify(documents=documents)

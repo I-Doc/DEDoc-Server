@@ -1,16 +1,26 @@
+import os
 import sys
 
 from dedoc.app import app, db
 
+
 def run():
-    app.run(debug=True, host='0.0.0.0')
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
+
 
 def not_found():
     print('command not found')
 
+
 def migrate():
     print('applying migrations...')
-    import dedoc.models
+    db.create_all()
+    db.session.commit()
+
+
+def seed():
+    print('seeding database...')
     from dedoc.models.document_state import DocumentState
     from dedoc.constants import DOCUMENT_STATES
 
@@ -31,5 +41,6 @@ if __name__ == '__main__':
     commands = {
         'run': run,
         'migrate': migrate,
+        'seed': seed
     }
     commands.get(command, not_found)()

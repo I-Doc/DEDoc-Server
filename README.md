@@ -24,6 +24,8 @@ Installation:
 
     If you are using MySQL with pymysql: `mysql+pymysql`
 
-3. Run `python3 manage.py migrate` to create table and fill it with constants.
+3. Run `python3 manage.py migrate` to create tables.
 
-4. Run `python3 manage.py run` to run development server.
+4. Run `python3 manage.py seed` to fill db with constants.
+
+5. Run `python3 manage.py run` to run development server.

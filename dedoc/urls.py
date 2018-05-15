@@ -37,7 +37,7 @@ def login():
     print('username: %s password: %s' % (username, password, ))
 
     if error:
-        return jsonify({'error': error}), 401
+        return jsonify({'error': error}), 400
 
     login_user = login_controller.check_password(username, password)
     if login_user:
@@ -45,7 +45,7 @@ def login():
         session, new = login_controller.get_session(login_user, ip)
         return jsonify({'new': new, 'token': session.token})
     else:
-        return jsonify({'error': 'Wrong username or password'})
+        return jsonify({'error': 'Wrong username or password'}), 401
 
 
 @app.route('/register', methods=['POST'])

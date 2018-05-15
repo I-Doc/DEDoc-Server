@@ -17,7 +17,7 @@ def str_to_date(string):
 
 
 def parse_error():
-    return jsonify({'error': 'Cannot parse JSON.'})
+    return jsonify({'error': 'Cannot parse JSON.'}), 400
 
 
 def serialize(obj):

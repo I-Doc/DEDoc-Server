@@ -5,11 +5,9 @@ from flask_bcrypt import generate_password_hash, check_password_hash
 from sqlalchemy.exc import IntegrityError
 
 from dedoc.app import auth, db
+from dedoc.constants import SQL_DUPLICATE_ERROR
 from dedoc.models.session import Session
 from dedoc.models.user import User
-
-
-SQL_DUPLICATE_ERROR = '1062'
 
 
 @auth.verify_token

@@ -25,4 +25,9 @@ class Document(db.Model):
     )
     data = db.Column(db.LargeBinary, nullable=False)
     cdate = db.Column(db.DateTime, nullable=False, server_default=func.now())
-    mdate = db.Column(db.DateTime, nullable=False, onupdate=func.now())
+    mdate = db.Column(
+        db.DateTime,
+        nullable=False,
+        onupdate=func.now(),
+        server_default=func.now(),
+    )

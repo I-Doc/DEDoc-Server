@@ -7,8 +7,10 @@ from sqlalchemy.sql.functions import now
 from dedoc.app import app, auth
 from dedoc.controller import login as login_controller
 from dedoc.controller import document as document_controller
+from dedoc.controller import template as template_controller
 from dedoc.controller import validators
 from dedoc.models.document import Document
+from dedoc.models.template import Template
 from dedoc.utils import date_to_str, str_to_date, parse_error, serialize
 
 REGISTRATION_REQUIRED_FIELDS = ()
@@ -125,7 +127,7 @@ def register():
     if new_user:
         ip = int(IPv4Address(request.remote_addr))
         new_user_session, _ = login_controller.get_session(new_user, ip)
-        print('new user session: %s' % (new_user_session))
+        print('new user session: %s' % (new_user_session,))
         return jsonify({'token': new_user_session.token})
     else:
         return jsonify({'error': error}), 400
@@ -176,8 +178,6 @@ def create_document():
     template = data.get('template_id')
     state = 1
     data = bytes(json.dumps(data.get('data')), 'utf8')
-    cdate = now()
-    mdate = now()
 
     document = {
         'name': name,
@@ -185,13 +185,50 @@ def create_document():
         'template': template,
         'state': state,
         'data': data,
-        'cdate': cdate,
-        'mdate': mdate,
     }
 
     new_document, error = document_controller.create_document(document)
 
     if new_document:
+        return jsonify({'success': True}), 200
+    else:
+        return jsonify({'error': error}), 400
+
+
+@app.route('/templates', methods=['GET'])
+@auth.login_required
+def templates():
+    templates = Template.query.all()
+    templates = [serialize(template) for template in templates]
+
+    return jsonify(templates)
+
+
+@app.route('/templates/<id>', methods=['GET'])
+@auth.login_required
+def template(id):
+    return jsonify(serialize(Template.query.get(id)))
+
+
+@app.route('/templates', methods=['POST'])
+@auth.login_required
+def create_template():
+    data = request.get_json(force=True, silent=True)
+
+    if not data:
+        return parse_error()
+
+    name = data.get('name')
+    data = bytes(json.dumps(data.get('data')), 'utf8')
+
+    template = {
+        'name': name,
+        'data': data,
+    }
+
+    new_template, error = template_controller.create_template(template)
+
+    if new_template:
         return jsonify({'success': True}), 200
     else:
         return jsonify({'error': error}), 400

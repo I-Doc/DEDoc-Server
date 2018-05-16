@@ -1,10 +1,8 @@
 from sqlalchemy.exc import IntegrityError
 
 from dedoc.app import db
+from dedoc.constants import SQL_DUPLICATE_ERROR
 from dedoc.models.document import Document
-
-
-SQL_DUPLICATE_ERROR = '1062'
 
 
 def create_document(document):
@@ -15,8 +13,6 @@ def create_document(document):
             template=document['template'],
             state=document['state'],
             data=document['data'],
-            cdate=document['cdate'],
-            mdate=document['mdate'],
         )
 
         db.session.add(new_document)

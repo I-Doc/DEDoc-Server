@@ -27,6 +27,7 @@ def seed():
     for name, description in DOCUMENT_STATES:
         db.session.add(DocumentState(name=name, description=description))
 
+    db.drop_all()
     db.create_all()
     db.session.commit()
 

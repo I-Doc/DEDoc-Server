@@ -1,9 +1,12 @@
+import json
 from ipaddress import IPv4Address
 
 from flask import request, jsonify, g
+from sqlalchemy.sql.functions import now
 
 from dedoc.app import app, auth
 from dedoc.controller import login as login_controller
+from dedoc.controller import document as document_controller
 from dedoc.controller import validators
 from dedoc.models.document import Document
 from dedoc.utils import date_to_str, str_to_date, parse_error, serialize
@@ -34,7 +37,7 @@ def login():
     if not password:
         error = 'No `password` field.'
 
-    print('username: %s password: %s' % (username, password, ))
+    print('username: %s password: %s' % (username, password,))
 
     if error:
         return jsonify({'error': error}), 400
@@ -122,7 +125,7 @@ def register():
     if new_user:
         ip = int(IPv4Address(request.remote_addr))
         new_user_session, _ = login_controller.get_session(new_user, ip)
-        print("new user session: %s" % (new_user_session, ))
+        print('new user session: %s' % (new_user_session))
         return jsonify({'token': new_user_session.token})
     else:
         return jsonify({'error': error}), 400
@@ -137,7 +140,7 @@ def profile():
         'surname': g.current_user.surname,
         'fathername': g.current_user.fathername,
         'birthdate': date_to_str(g.current_user.birthdate),
-        })
+    })
 
 
 @app.route('/documents', methods=['GET'])
@@ -147,3 +150,48 @@ def documents():
     documents = [serialize(document) for document in documents]
 
     return jsonify(documents)
+
+
+@app.route('/documents/<id>', methods=['GET'])
+@auth.login_required
+def document(id):
+    document = Document.query \
+        .filter_by(owner=g.current_user.id) \
+        .filter_by(id=id) \
+        .first()
+
+    return jsonify(serialize(document))
+
+
+@app.route('/documents', methods=['POST'])
+@auth.login_required
+def create_document():
+    data = request.get_json(force=True, silent=True)
+
+    if not data:
+        return parse_error()
+
+    name = data.get('name')
+    owner = g.current_user.id
+    template = data.get('template_id')
+    state = 1
+    data = bytes(json.dumps(data.get('data')), 'utf8')
+    cdate = now()
+    mdate = now()
+
+    document = {
+        'name': name,
+        'owner': owner,
+        'template': template,
+        'state': state,
+        'data': data,
+        'cdate': cdate,
+        'mdate': mdate,
+    }
+
+    new_document, error = document_controller.create_document(document)
+
+    if new_document:
+        return jsonify({'success': True}), 200
+    else:
+        return jsonify({'error': error}), 400

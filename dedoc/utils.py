@@ -22,4 +22,8 @@ def parse_error():
 
 def serialize(obj):
     """Transforms object to dict"""
-    return {c.name: str(getattr(obj, c.name)) for c in obj.__table__.columns}
+    return (
+        {c.name: str(getattr(obj, c.name)) for c in obj.__table__.columns}
+        if obj is not None
+        else {}
+    )

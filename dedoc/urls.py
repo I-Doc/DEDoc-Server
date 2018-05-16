@@ -146,4 +146,4 @@ def documents():
     documents = Document.query.filter_by(owner=g.current_user.id)
     documents = [serialize(document) for document in documents]
 
-    return jsonify(documents=documents)
+    return jsonify(documents)

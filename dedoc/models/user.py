@@ -14,7 +14,5 @@ class User(db.Model):
     birthdate = db.Column(db.Date)
 
     ser_fields = (
-        'id', 'username', 'is_admin',
-        'name', 'surname', 'fathername',
-        'birthdate'
+        'id', 'username', 'is_admin', 'name', 'birthdate',
     )

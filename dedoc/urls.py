@@ -1,8 +1,6 @@
-import json
 from ipaddress import IPv4Address
 
 from flask import request, jsonify, g
-from sqlalchemy.sql.functions import now
 
 from dedoc.app import app, auth
 from dedoc.controller import login as login_controller
@@ -12,8 +10,8 @@ from dedoc.controller import validators
 from dedoc.models.document import Document
 from dedoc.models.template import Template
 from dedoc.models.document_state import DocumentState
-from dedoc.utils import date_to_str, str_to_date, parse_error, serialize, object_serializer
-
+from dedoc.utils import str_to_date, parse_error, object_serializer, \
+    string_to_bytes
 
 REGISTRATION_REQUIRED_FIELDS = ()
 
@@ -164,6 +162,7 @@ def change_document_state(id):
         return jsonify({'success': True})
     return jsonify({'error': 'Permissions denied.'})
 
+
 @app.route('/documents', methods=['POST'])
 @auth.login_required
 def create_document():
@@ -176,7 +175,7 @@ def create_document():
     owner = g.current_user.id
     template = data.get('template')
     state = 1
-    data = bytes(json.dumps(data.get('data')), 'utf8')
+    data = string_to_bytes(data.get('data'))
 
     document = {
         'name': name,
@@ -216,7 +215,7 @@ def create_template():
         return parse_error()
 
     name = data.get('name')
-    data = bytes(json.dumps(data.get('data')), 'utf8')
+    data = string_to_bytes(data.get('data'))
 
     template = {
         'name': name,

@@ -25,7 +25,7 @@ def verify_token(token):
     """
     session = Session.query.filter(Session.token == token).first()
     if session:
-        user = User.query.filter(User.id == Session.user).first()
+        user = User.query.filter(User.id == session.user).first()
         if user:
             if not user.is_active:
                 g.auth_error = 'User is not active. Contact administrator.'

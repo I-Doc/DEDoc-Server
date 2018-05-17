@@ -112,7 +112,7 @@ def register():
             errors.append('`fathername` field is not valid.')
 
     if errors:
-        return jsonify({'errors': errors, 'success': False})
+        return jsonify({'errors': errors, 'success': False}), 400
     else:
         registration_data = {
             'username': username,

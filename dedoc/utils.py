@@ -21,19 +21,10 @@ def parse_error():
     return jsonify({'error': 'Cannot parse JSON.'}), 400
 
 
-def serialize(obj):
-    """Transforms object to dict"""
-    return (
-        {c.name: str(getattr(obj, c.name)) for c in obj.__table__.columns}
-        if obj is not None
-        else {}
-    )
-
-
 SER_RULES = {
     int: int,
     str: str,
-    bytes: lambda d: bytes.decode(d, 'utf-8'),
+    bytes: lambda d: bytes_to_string(d),
     datetime.datetime: lambda d: d.isoformat(),
     datetime.date: date_to_str
 }
@@ -72,3 +63,11 @@ def _object_serializer(obj):
             result.append(_object_serializer(i))
         return result
     return obj
+
+
+def string_to_bytes(data):
+    return data.encode('utf-8')
+
+
+def bytes_to_string(data):
+    return data.decode('utf-8')

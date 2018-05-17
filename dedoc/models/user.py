@@ -11,12 +11,8 @@ class User(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     email = db.Column(db.String(50))
     name = db.Column(db.String(50), nullable=False)
-    surname = db.Column(db.String(50))
-    fathername = db.Column(db.String(50))
     birthdate = db.Column(db.Date)
 
     ser_fields = (
-        'id', 'username', 'is_admin',
-        'name', 'surname', 'fathername',
-        'birthdate'
+        'id', 'username', 'is_admin', 'name', 'birthdate',
     )

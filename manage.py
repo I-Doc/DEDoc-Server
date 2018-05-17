@@ -20,19 +20,9 @@ def migrate():
     db.session.commit()
 
 
-def seed():
-    print('seeding database...')
-    from dedoc.models.document_state import DocumentState
-    from dedoc.constants import DOCUMENT_STATES
-
-    for name, description in DOCUMENT_STATES:
-        db.session.add(DocumentState(name=name, description=description))
-
-    db.create_all()
-    db.session.commit()
-
-
 if __name__ == '__main__':
+    from seed import seed
+
     try:
         command = sys.argv[1]
     except Exception:

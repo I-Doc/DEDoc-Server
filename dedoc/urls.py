@@ -11,6 +11,7 @@ from dedoc.controller import template as template_controller
 from dedoc.controller import validators
 from dedoc.models.document import Document
 from dedoc.models.template import Template
+from dedoc.models.document_state import DocumentState
 from dedoc.utils import date_to_str, str_to_date, parse_error, serialize, object_serializer
 
 
@@ -143,7 +144,10 @@ def profile():
 @app.route('/documents', methods=['GET'])
 @auth.login_required
 def documents():
-    documents = Document.query.filter_by(owner=g.current_user.id)
+    if g.current_user.is_admin:
+        documents = Document.query.all()
+    else:
+        documents = Document.query.filter_by(owner=g.current_user.id)
     return object_serializer(documents)
 
 
@@ -157,6 +161,24 @@ def document(id):
 
     return object_serializer(document)
 
+
+@app.route('/documents/<id>/state', methods=['POST'])
+@auth.login_required
+def change_document_state(id):
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return parse_error()
+
+    if g.current_user.is_admin:
+        new_state = data.get('state')
+        if not new_state:
+            return jsonify({'error': '`state` not found.'})
+
+        error = document_controller.change_document_state(id, new_state)
+        if error:
+            return jsonify({'error': error})
+        return jsonify({'success': True})
+    return jsonify({'error': 'Permissions denied.'})
 
 @app.route('/documents', methods=['POST'])
 @auth.login_required
@@ -223,3 +245,8 @@ def create_template():
         return jsonify({'success': True}), 200
     else:
         return jsonify({'error': error}), 400
+
+
+@app.route('/states', methods=['GET'])
+def doc_states():
+    return object_serializer(DocumentState.query.all())

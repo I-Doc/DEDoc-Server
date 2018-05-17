@@ -175,7 +175,7 @@ def create_document():
 
     name = data.get('name')
     owner = g.current_user.id
-    template = data.get('template_id')
+    template = data.get('template')
     state = 1
     data = bytes(json.dumps(data.get('data')), 'utf8')
 

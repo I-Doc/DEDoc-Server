@@ -7,7 +7,6 @@ from flask import jsonify
 DATE_FORMAT = '%Y-%m-%d'
 
 
-
 def date_to_str(date):
     """Convert date to string with format dd/mm/YYYY"""
     return date.strftime(DATE_FORMAT)
@@ -35,7 +34,7 @@ SER_RULES = {
     int: int,
     str: str,
     bytes: lambda d: bytes.decode(d, 'utf-8'),
-    datetime.datetime: date_to_str,
+    datetime.datetime: lambda d: d.isoformat(),
     datetime.date: date_to_str
 }
 

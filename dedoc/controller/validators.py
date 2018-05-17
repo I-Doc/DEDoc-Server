@@ -35,16 +35,6 @@ def validate_name(name):
     return validate_username(name)
 
 
-def validate_surname(surname):
-    """Return True is surname is valid, False otherwise"""
-    return validate_name(surname)
-
-
-def validate_fathername(fathername):
-    """Return True is fathername is valid, False otherwise"""
-    return validate_name(fathername)
-
-
 def validate_birthdate(birthdate):
     """Return True if birthdate is valid, False otherwise"""
     return datetime.date(1940, 1, 1) < birthdate < datetime.date.today()

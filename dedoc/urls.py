@@ -68,8 +68,6 @@ def register():
     password = data.get('password')
 
     name = data.get('name')
-    surname = data.get('surname')
-    fathername = data.get('fathername')
 
     birthdate = data.get('birthdate')
     if not birthdate:
@@ -101,18 +99,6 @@ def register():
         if not validators.validate_name(name):
             errors.append('`name` field is not valid.')
 
-    if not surname:
-        errors.append('No `surname` field.')
-    else:
-        if not validators.validate_surname(surname):
-            errors.append('`surname` field is not valid.')
-
-    if not fathername:
-        errors.append('No `fathername` field.')
-    else:
-        if not validators.validate_fathername(fathername):
-            errors.append('`fathername` field is not valid.')
-
     if errors:
         return jsonify({'errors': errors, 'success': False}), 400
     else:
@@ -120,8 +106,6 @@ def register():
             'username': username,
             'password': password,
             'name': name,
-            'surname': surname,
-            'fathername': fathername,
             'birthdate': birthdate,
         }
 

@@ -23,10 +23,29 @@ def migrate():
 def seed():
     print('seeding database...')
     from dedoc.models.document_state import DocumentState
+    from dedoc.models.user import User
     from dedoc.constants import DOCUMENT_STATES
+    from dedoc.controller.login import _get_password_hash
 
     for name, description in DOCUMENT_STATES:
         db.session.add(DocumentState(name=name, description=description))
+
+    db.session.add(User(
+        username='username',
+        password=_get_password_hash('password'),
+        email='user@email.com',
+        name='name',
+        birthdate='09/05/1990',
+    ))
+
+    db.session.add(User(
+        username='admin',
+        password=_get_password_hash('password'),
+        email='admin@email.com',
+        name='name',
+        is_admin=True,
+        birthdate='09/05/1990',
+    ))
 
     db.create_all()
     db.session.commit()

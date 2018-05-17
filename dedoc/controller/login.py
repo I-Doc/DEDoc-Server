@@ -107,8 +107,6 @@ def register_new_user(user_data):
             username=user_data['username'],
             password=_get_password_hash(user_data['password']),
             name=user_data['name'],
-            surname=user_data['surname'],
-            fathername=user_data['fathername'],
             birthdate=user_data['birthdate'])
         db.session.add(new_user)
         db.session.commit()

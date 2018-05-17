@@ -11,7 +11,8 @@ from dedoc.controller import template as template_controller
 from dedoc.controller import validators
 from dedoc.models.document import Document
 from dedoc.models.template import Template
-from dedoc.utils import date_to_str, str_to_date, parse_error, serialize
+from dedoc.utils import date_to_str, str_to_date, parse_error, serialize, object_serializer
+
 
 REGISTRATION_REQUIRED_FIELDS = ()
 
@@ -78,7 +79,7 @@ def register():
             if not validators.validate_birthdate(birthdate):
                 errors.append('Wrong `birthdate`.')
         except ValueError:
-            errors.append('Wrong date format. Need dd/mm/YYYY.')
+            errors.append('Wrong date format. Need YYYY-mm-dd.')
 
     if not username:
         errors.append('No `username` field.')
@@ -136,22 +137,14 @@ def register():
 @app.route('/profile', methods=['GET'])
 @auth.login_required
 def profile():
-    return jsonify({
-        'username': g.current_user.username,
-        'name': g.current_user.name,
-        'surname': g.current_user.surname,
-        'fathername': g.current_user.fathername,
-        'birthdate': date_to_str(g.current_user.birthdate),
-    })
+    return object_serializer(g.current_user)
 
 
 @app.route('/documents', methods=['GET'])
 @auth.login_required
 def documents():
     documents = Document.query.filter_by(owner=g.current_user.id)
-    documents = [serialize(document) for document in documents]
-
-    return jsonify(documents)
+    return object_serializer(documents)
 
 
 @app.route('/documents/<id>', methods=['GET'])
@@ -162,7 +155,7 @@ def document(id):
         .filter_by(id=id) \
         .first()
 
-    return jsonify(serialize(document))
+    return object_serializer(document)
 
 
 @app.route('/documents', methods=['POST'])
@@ -199,15 +192,13 @@ def create_document():
 @auth.login_required
 def templates():
     templates = Template.query.all()
-    templates = [serialize(template) for template in templates]
-
-    return jsonify(templates)
+    return object_serializer(templates)
 
 
 @app.route('/templates/<id>', methods=['GET'])
 @auth.login_required
 def template(id):
-    return jsonify(serialize(Template.query.get(id)))
+    return object_serializer(Template.query.get(id), False)
 
 
 @app.route('/templates', methods=['POST'])

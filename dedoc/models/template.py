@@ -17,3 +17,7 @@ class Template(db.Model):
         onupdate=func.now(),
         server_default=func.now(),
     )
+
+    ser_fields = (
+        'id', 'name', 'data', 'is_active', 'cdate', 'mdate'
+    )

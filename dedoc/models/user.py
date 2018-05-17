@@ -14,3 +14,9 @@ class User(db.Model):
     surname = db.Column(db.String(50))
     fathername = db.Column(db.String(50))
     birthdate = db.Column(db.Date)
+
+    ser_fields = (
+        'id', 'username', 'is_admin',
+        'name', 'surname', 'fathername',
+        'birthdate'
+    )

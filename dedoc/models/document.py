@@ -31,3 +31,8 @@ class Document(db.Model):
         onupdate=func.now(),
         server_default=func.now(),
     )
+
+    ser_fields = (
+        'id', 'name', 'owner', 'template',
+        'state', 'data', 'cdate', 'mdate'
+    )
